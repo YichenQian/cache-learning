@@ -8,7 +8,7 @@ from itertools import combinations
 
 GAMMA = 0.01 # decay rate of past observations
 TARGET_FUNCTION = 2.0
-MAX_ITERATION = 100000
+MAX_ITERATION = 1000000
 
 # Network parameters
 K = 5  # The number of users
@@ -28,6 +28,7 @@ times = 1
 target_fun = 2.0
 NO_PUSH = 0
 g_out = 0.0
+Q_out = 0.0
 
 # generate the transition probability
 ga = 0.5
