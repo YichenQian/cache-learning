@@ -17,7 +17,7 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 STEP_PER_ACTION = 1
-TARGET_FUNCTION = 4
+TARGET_FUNCTION = 2
 STABLE_CACHE = 0
 MAX_ITERATION = 10000000
 NODE_NUM = 64
@@ -29,13 +29,13 @@ BATCH = 32 # size of minibatch
 OBSERVE = 20000. # timesteps to observe before training
 EXPLORE = 3000000. # frames over which to anneal epsilon
 GAMMA = 1 # decay rate of past observations
-QUICK = 10
+QUICK = 1
 OBSERVE = OBSERVE / QUICK
 EXPLORE = EXPLORE / QUICK
 MAX_ITERATION = MAX_ITERATION / QUICK
 
 # Network parameters
-K = 5  # The number of users
+K = 10  # The number of users
 N = 10  # The number of total files
 M = 3  #The cache size of edge servers
 L = 2  # The cache size of users

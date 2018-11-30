@@ -8,10 +8,10 @@ from itertools import combinations
 
 GAMMA = 0.01 # decay rate of past observations
 TARGET_FUNCTION = 2.0
-MAX_ITERATION = 1000000
+MAX_ITERATION = 100000
 
 # Network parameters
-K = 5  # The number of users
+K = 10  # The number of users
 N = 10  # The number of total files
 M = 2  # The cache size of users
 L = 3  # The cache size of edge servers
