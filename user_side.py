@@ -28,6 +28,7 @@ times = 1
 target_fun = 2.0
 NO_PUSH = 0
 g_out = 0.0
+Q_out = 0.0
 
 # generate the transition probability
 ga = 0.5

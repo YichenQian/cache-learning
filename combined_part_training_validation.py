@@ -56,8 +56,7 @@ str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=L, LL=M)
 str2 = "training_data/Q_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=L, LL=M)
 g = pickle.load(open(str1, 'rb'))
 Q_new = pickle.load(open(str2, 'rb'))
-g_out = 0.0
-Q_out = 0.0
+
 
 # generate the transition probability
 ga = 0.5;
@@ -954,8 +953,7 @@ def main():
             #if C_all[i, 0] == C_all[i, 1]:
             #    test = 1;
         P_u = np.array(list(set(np.unique(P)).difference(set(R_u))))
-        g_out = g
-        Q_out = Q_new
+
 
 
         # edge server side            
@@ -1033,10 +1031,6 @@ def main():
             
             LOSS_FUN.append(LOSS)
             
-            # save progress every (MAX_ITERATION / 10) iterations
-            if t % (MAX_ITERATION / 10) == 0:
-                saver.save(sess, 'saved_networks/' + 'cache' + '-dqn', global_step = t)
-    
             # save progress every 10000 iterations
     #        if t % 10000 == 0:
     #            saver.save(sess, 'saved_networks/' + 'cache' + '-dqn', global_step = t)
@@ -1051,13 +1045,6 @@ def main():
         total_cost += r_t
         avarage_cost = total_cost / t
     print(avarage_cost)
-    str3 = "training_data/g_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
-    str4 = "training_data/Q_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
-    str5 = "simulation_result/cost_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
-    pickle.dump(g_out,open(str3, 'wb'))
-    pickle.dump(Q_out,open(str4, 'wb'))
-    pickle.dump(avarage_cost,open(str5, 'wb'))
-    print ("write over")
     return avarage_cost
 
 if __name__ == "__main__":
