@@ -5,14 +5,23 @@ import numpy as np
 import pickle
 #import matplotlib.pyplot as plt
 from itertools import combinations
+import argparse
 
 GAMMA = 0.01 # decay rate of past observations
 TARGET_FUNCTION = 2.0
 MAX_ITERATION = 100000
 
 # Network parameters
-K = 10  # The number of users
-N = 10  # The number of total files
+#K = 15  # The number of users
+#N = 10  # The number of total files
+parser = argparse.ArgumentParser(description='manual to this script')
+parser.add_argument('--K', type=int, default = 0)
+parser.add_argument('--N', type=int, default = 0)
+args = parser.parse_args()
+K = args.K
+N = args.N
+print(K)
+print(N)
 M = 2  # The cache size of users
 L = 3  # The cache size of edge servers
 C = np.zeros(M)  # The cache state of users

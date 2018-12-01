@@ -15,6 +15,7 @@ from tensorflow.python.framework import ops
 ops.reset_default_graph()
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import argparse
 
 STEP_PER_ACTION = 1
 TARGET_FUNCTION = 2
@@ -35,8 +36,16 @@ EXPLORE = EXPLORE / QUICK
 MAX_ITERATION = MAX_ITERATION / QUICK
 
 # Network parameters
-K = 10  # The number of users
-N = 10  # The number of total files
+#K = 10  # The number of users
+#N = 10  # The number of total files
+parser = argparse.ArgumentParser(description='manual to this script')
+parser.add_argument('--K', type=int, default = 64)
+parser.add_argument('--N', type=int, default = 64)
+args = parser.parse_args()
+print(args.K)
+print(args.N)
+K = args.K
+N = args.N
 M = 3  #The cache size of edge servers
 L = 2  # The cache size of users
 C = np.zeros(M)  # The cache state of users
