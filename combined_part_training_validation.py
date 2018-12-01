@@ -9,7 +9,6 @@ import tensorflow as tf
 import random
 import numpy as np
 import pickle
-from collections import deque
 from itertools import combinations
 from tensorflow.python.framework import ops
 ops.reset_default_graph()
@@ -18,7 +17,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import argparse
 
 STEP_PER_ACTION = 1
-TARGET_FUNCTION = 4
+TARGET_FUNCTION = 2
 STABLE_CACHE = 0
 MAX_ITERATION = 10000000
 NODE_NUM = 64
@@ -27,12 +26,8 @@ FINAL_EPSILON = 0.0001 # final value of epsilon
 INITIAL_EPSILON = 0.1 # starting value of epsilon
 REPLAY_MEMORY = 50000 # number of previous transitions to remember
 BATCH = 32 # size of minibatch
-OBSERVE = 20000. # timesteps to observe before training
-EXPLORE = 3000000. # frames over which to anneal epsilon
 GAMMA = 1 # decay rate of past observations
-QUICK = 10
-OBSERVE = OBSERVE / QUICK
-EXPLORE = EXPLORE / QUICK
+QUICK = 100
 MAX_ITERATION = MAX_ITERATION / QUICK
 
 # Network parameters
@@ -61,8 +56,8 @@ NO_PUSH = 0
 GAMMA = 0.01  # decay rate of past observations
 TARGET_FUNCTION = 2
 # import g and Q
-str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=L, LL=M)
-str2 = "training_data/g_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=L, LL=M)
+str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
+str2 = "training_data/Q_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
 g = pickle.load(open(str1, 'rb'))
 Q_new = pickle.load(open(str2, 'rb'))
 
@@ -219,148 +214,6 @@ def createNetwork():
 
     return s, readout
 
-'''
-def trainNetwork(env, R_u, P_u, C_all, s, readout, sess, t):
-    if t == 0:
-        # define the cost function
-        a = tf.placeholder("float", [None, ACTIONS])
-        y = tf.placeholder("float", [None])
-        readout_action = tf.reduce_sum(tf.multiply(readout, a), reduction_indices=1)
-        #readout_action = tf.multiply(readout, a)
-        cost = tf.reduce_mean(tf.square(y - readout_action))
-        train_step = tf.train.AdamOptimizer(LEARNING_RATE).minimize(cost)
-        # store the previous observations in replay memory
-        D = deque()
-        # epsilon
-        epsilon = INITIAL_EPSILON
-#       total_cost = 0
-        LOSS_FUN = []
-
-    cache = env.cache_state
-    request = env.request_state
-    # mark
-    R = list(set(request).difference(set(cache)))
-    if len(R):
-        if R[0] == 0:
-            del(R[0])
-    RL = [len(R)]
-    request_num = np.zeros(N + 1)
-    for i in range(0, K):
-        request_num[request[i]] += 1
-    cache.sort()
-    cache_index = np.zeros(N)
-    for i in cache:
-        cache_index[i - 1] += 1
-    s_t = np.array(list(request_num) + list(cache_index) + RL)
-    if t == 0:
-        s_0 = s_t
-
-
-    # saving and loading networks
-#    saver = tf.train.Saver()
-#    sess.run(tf.initialize_all_variables())
-#    checkpoint = tf.train.get_checkpoint_state("saved_networks")
-#    if checkpoint and checkpoint.model_checkpoint_path:
-#        saver.restore(sess, checkpoint.model_checkpoint_path)
-#        print("Successfully loaded:", checkpoint.model_checkpoint_path)
-#    else:
-#        print("Could not find old network weights")
-
-    
-    # start training    
-    # choose an action epsilon greedily
-    readout_t = readout.eval(feed_dict={s : [s_t]})[0]
-    a_t = np.zeros([ACTIONS])
-    action_index = 0
-    #if t % STEP_PER_ACTION == 0:
-    if STABLE_CACHE == 0:
-        action_index = random.randrange(ACTIONS)
-    a_t[action_index] = 1
-    if STABLE_CACHE == 0:
-        #action_index = np.argmin(readout_t)
-        min_index = np.where(readout_t == np.min(readout_t))
-        min_index = min_index[0]
-        action_index = min_index[random.randint(0, len(min_index)-1)]
-    a_t[action_index] = 1
-    
-    if epsilon > FINAL_EPSILON and t > OBSERVE:
-            epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / EXPLORE
-    # run the selected action and observe next state and reward
-    new_request_state, r_t, R, P = env._step(action_index)
-    r_t += (len(P_u) + len(R_u)) ** TARGET_FUNCTION
-
-    RL = [len(R)]
-    new_request_num = np.zeros(N + 1)
-    for i in range(0, K):
-        new_request_num[request[i]] += 1
-    old_cache = cache.copy()
-    cache = cob[action_index]
-    # count the different cache nums
-    c_diff = len(set(cache).difference(set(old_cache)))
-    
-    cache_index = np.zeros(N)
-    for i in cache:
-        cache_index[i - 1] += 1
-    s_t1 = np.array(list(new_request_num) + list(cache_index) + RL)
-    #total_cost += r_t * (min(N, M + K) ** TARGET_FUNCTION)
-    #total_cost += r_t
-    #avarage_cost = total_cost / (t + 1)
-
-    # store the transition in D
-    D.append((s_t, a_t, r_t, s_t1))
-    if len(D) > REPLAY_MEMORY:
-        D.popleft()
-
-    # only train if done observing
-    if t > OBSERVE:
-        # sample a minibatch to train on
-        minibatch = random.sample(D, BATCH)
-        #print (minibatch.shape)
-        # get the batch variables
-        s_j_batch = [d[0] for d in minibatch]
-        #print (s_j_batch.shape)
-        a_batch = [d[1] for d in minibatch]
-        #print (a_batch.shape)
-        r_batch = [d[2] for d in minibatch]
-        #print (r_batch.shape)
-        s_j1_batch = [d[3] for d in minibatch]
-        #print (s_j1_batch.shape)
-        
-        y_batch = []
-        readout_j1_batch = readout.eval(feed_dict = {s : s_j1_batch})
-        readout_j0 = readout.eval(feed_dict = {s : [s_0]})[0]
-        for i in range(0, len(minibatch)):
-            y_batch.append(r_batch[i] + GAMMA * np.min(readout_j1_batch[i]) - np.min(readout_j0))
-        # perform gradient step
-        sess.run(train_step, feed_dict = {y : y_batch, a : a_batch, s : s_j_batch})
-#       train_step.run(feed_dict = {y : y_batch, a : a_batch, s : s_j_batch})
-        LOSS = sess.run(cost, feed_dict = {y : y_batch, a : a_batch, s : s_j_batch})
-        if t % 1000 == 0:
-            print("/ LOSS", LOSS)
-            print("P", P, "R", R, "SYSTEM_STATE", s_t, "NEXT_STATE", s_t1)
-        
-        LOSS_FUN.append(LOSS)
-
-        # save progress every 10000 iterations
-#        if t % 10000 == 0:
-#            saver.save(sess, 'saved_networks/' + 'cache' + '-dqn', global_step = t)
-#        if t % 1000 == 0:
-#            print("TIMESTEP", t, "/ AVARAGE_COST", avarage_cost, \
-#                  "/ ACTION", action_index, "/ REWARD", r_t)
-        
-        # update the old values
-        s_t = s_t1
-        
-    return R, P, cache, c_diff, r_t
-
-    
-def playGame(env, R_u, P_u, C_all, t):
-    sess = tf.InteractiveSession()
-    s, readout = createNetwork()
-    R, P, cache, c_diff, r_t = trainNetwork(env, R_u, P_u, C_all, s, readout, sess, t)
-    return R, P, cache, c_diff, r_t
-'''
-
 def LRU():
     # open up a system environment
     request = np.zeros(K)
@@ -473,209 +326,6 @@ def stable():
     avarage_cost = total_cost / t
     return avarage_cost
 
-'''
-def user_side(env, q_new, q_old, C_all, C_E, t):
-    if t == 0:
-        Q_new = np.zeros([2, 2, N, N + 1])
-        g = np.zeros([N, N + 1])  # g value
-        # Count the number of requests
-        req_times = np.zeros(N + 1)  # req_time of file n is in req_time[n], 0 represents no request
-        Q_old = Q_new.copy()
-        phi = np.zeros([1, 1, N, 1])
-        # Record the initial state
-        A_k0 = random.randint(1, N)
-        S_kf0 = 1
-        dS_kf0 = 1
-        push_file_all = []
-        C_old_all = C_all.copy()
-
-    # Begin the iteration
-    Q_old = Q_new.copy()
-    q_old = q_new.copy()
-    # Update the user request
-    for i in range(K):
-        tran_p = random.random()
-        j = 0
-        while tran_p > f_sum[q_new[i], j]:
-            j += 1
-        q_new[i] = j
-        req_times[q_new[i]] += 1 # modified
-    
-    # Update the Q value and g
-    if t != 0:
-        Q_update = 0
-        for i in range(K):
-            req_old = q_old[i].copy()
-            req_new = q_new[i].copy()
-            # Find the cache action of last slot
-            [add, delete, maintain] = cache_diff(C_old_all[i, :], C_all[i, :])
-            add = np.array(add).astype(int)
-            delete = np.array(delete).astype(int)
-            maintain = np.array(maintain).astype(int)
-            # Update the Q value of each cache action
-            GAMA = np.zeros(N + 1)
-            for j in range(N + 1):
-                if req_times[j] != 0:
-                    #GAMA[j] = 1.0 / np.sqrt(req_times[j])
-                    GAMA = 0.1 * np.ones(N + 1)
-            
-            # Compute phi(S_kf, f, A_k)
-            P_n = len(push_file_all[i])
-            r_c = np.zeros(N)
-            for ff in range(1, N + 1):
-                r_c[ff - 1] = (1 - (req_old == ff) * (req_old in C_old_all[i, :]) * (req_old != 0))
-            phi = 1.0 / K / N * ((r_c + P_n) ** target_fun + ((req_old not in C_E) + (P_n not in C_E)) ** target_fun)
-            #phi = np.zeros([1, 1, N, 1])
-            #for j in range(N):
-            #    phi[1, 1, j, 1] = ph[j]
-            
-            # Add
-            if len(add):
-                S_kf = 0  # 0 represent not cache, 1 represent cache
-                dS_kf = 1  # 0 represent maintain, 1 represent add
-                A_k = req_old  # no request = 0
-                S_kf1 = 1  # 0 represent not cache, 1 represent cache
-                A_k1 = req_new  # no request = 0
-                num = len(add)
-                Q_next = np.zeros(num)
-                for j in range(num):
-                    c_a = (A_k1 == add[j]) * (1 - S_kf1)
-                    Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, add[j] - 1, A_k1].copy()
-                Q_new[S_kf, dS_kf, add - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, add - 1, A_k].copy() + GAMA[A_k]*(phi[add - 1] + Q_next - Q_old[S_kf0, dS_kf0, add - 1, A_k0].copy())
-                Q_update = Q_update + np.sum(Q_new[S_kf, dS_kf, add - 1, A_k] - Q_old[S_kf, dS_kf, add - 1, A_k])
-            
-            # Delete
-            if len(delete):
-                S_kf = 1  # 0 represent not cache, 1 represent cache
-                dS_kf = 0  # 0 represent delete, 1 represent maintain
-                A_k = req_old  # no request = 0
-                S_kf1 = 0  # 0 represent not cache, 1 represent cache
-                A_k1 = req_new  # no request = 0
-                num = len(delete)
-                Q_next = np.zeros(num)
-                for j in range(num):
-                    c_a = (A_k1 == delete[j]) * (1 - S_kf1)
-                    Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, delete[j] - 1, A_k1].copy()
-                Q_new[S_kf, dS_kf, delete - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, delete - 1, A_k].copy() + GAMA[A_k]*(phi[delete - 1] + Q_next - Q_old[S_kf0, dS_kf0, delete - 1, A_k0].copy())
-                Q_update = Q_update + np.sum(Q_new[S_kf, dS_kf, delete - 1, A_k] - Q_old[S_kf, dS_kf, delete - 1, A_k])
-            
-            # Maintain cache
-            if len(maintain):
-                S_kf = 1  # 0 represent not cache, 1 represent cache
-                dS_kf = 1  # 0 represent delete, 1 represent maintain
-                A_k = req_old  # no request = 0
-                S_kf1 = 1  # 0 represent not cache, 1 represent cache
-                A_k1 = req_new  # no request = 0
-                num = len(maintain)
-                Q_next = np.zeros(num)
-                for j in range(num):
-                    c_a = (A_k1 == maintain[j]) * (1 - S_kf1)
-                    Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, maintain[j] - 1, A_k1].copy()
-                Q_new[S_kf, dS_kf, maintain - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, maintain - 1, A_k].copy() + GAMA[A_k]*(phi[maintain - 1] + Q_next - Q_old[S_kf0, dS_kf0, maintain - 1, A_k0].copy())
-                Q_update = Q_update + np.sum(Q_new[S_kf, dS_kf, maintain - 1, A_k] - Q_old[S_kf, dS_kf, maintain - 1, A_k])
-            
-            # Maintain not cache
-            maintain_n = np.array(files)
-            maintain_n = np.delete(maintain_n, add)
-            maintain_n = np.delete(maintain_n, delete)
-            maintain_n = np.delete(maintain_n, maintain)
-            if len(maintain_n):
-                S_kf = 0  # 0 represent not cache, 1 represent cache
-                dS_kf = 1  # 0 represent maintain, 1 represent add
-                A_k = req_old  # no request = 0
-                S_kf1 = 1  # 0 represent not cache, 1 represent cache
-                A_k1 = req_new  # no request = 0
-                num = len(maintain_n)
-                Q_next = np.zeros(num)
-                for j in range(num):
-                    c_a = (A_k1 == maintain_n[j]) * (1 - S_kf1)
-                    Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, maintain_n[j] - 1, A_k1].copy()
-                Q_new[S_kf, dS_kf, maintain_n - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, maintain_n - 1, A_k].copy() + GAMA[A_k]*(phi[maintain_n - 1] + Q_next - Q_old[S_kf0, dS_kf0, maintain_n - 1, A_k0].copy())
-                Q_update = Q_update + np.sum(Q_new[S_kf, dS_kf, maintain_n - 1, A_k] - Q_old[S_kf, dS_kf, maintain_n - 1, A_k])
-            
-            # Update g
-            #print(A_k)
-            for j in range(N):
-                S_kf = (j + 1 in C_old_all[i, :]) + 0
-                #g[j, A_k] = min(Q_new[S_kf0, :, j, A_k0]) + Q_new[S_kf, S_kf, j, A_k].copy() - phi[j]
-                g[j, A_k] = Q_new[1, 1, j, A_k].copy() + Q_new[0, 0, j, A_k].copy() - phi[j]
-        #print(Q_update)
-
-    # Update the reacitve transmission
-    R = np.zeros(K)
-    R = R.astype(int)
-    for i in range(K):
-        if q_new[i] != 0 and q_new[i] not in C_all[i, :]:
-            R[i] = q_new[i].copy()
-    R_k = R.copy()
-    R = np.unique(R)
-    if R[0] == 0:
-        np.delete(R, 0)
-    R_e = list(set(R).difference(set(C_E))) # R at edge server side
-        
-    C_old_all = C_all.copy()
-    # Determine the per-uer push
-    push_all = np.zeros(K)
-    push_file_all = []
-    P = np.array([])
-    for i in range(K):
-        possible_push = np.array([n for n in range(1, N + 1)])
-        delete_index = C_old_all[i, :].copy()
-        if R != 0:
-            delete_index = np.append(delete_index, R)
-        np.delete(possible_push, (delete_index - 1).tolist())
-        g_min = 1.0 / K * (len(R) ** target_fun + len(R_e) ** target_fun)
-        push_num = 0
-        A_k1 = q_new[i].copy()
-        C_temp = C_old_all[i, :].copy()
-        push_f = []
-        # check the files in R if it can be better cache
-        no_push = C_old_all[i, :].copy()
-        no_push = np.append(no_push, R)
-        no_push = np.unique(no_push)
-        pos = np.argsort(g[no_push - 1, A_k1])
-        g_sort = np.sort(g[no_push - 1, A_k1])
-        sum_g = np.sum(g_sort[0 : L])
-        pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
-        g_sort1 = -np.sort(-g[possible_push - 1, A_k1])
-        delete_g = np.sum(g_sort1[0 : L])
-        if delete_g > sum_g:
-            g_min = g_min - delete_g + sum_g
-            C_temp = np.delete(C_temp, list(pos1[0 : L]))
-            C_temp = np.concatenate([C_temp, no_push[pos[0 : L]]])
-            
-        for j in range(1, min(len(possible_push - 1), L) + 1):
-            pos = np.argsort(g[possible_push - 1, A_k1])
-            g_sort = np.sort(g[possible_push - 1, A_k1])
-            sum_g = np.sum(g_sort[0 : j])
-            push_file = possible_push[list(pos[0 : j])].copy()
-            push_E = 0
-            for k in range(j):
-                if push_file[k] not in C_E:
-                    push_E += 1
-            pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
-            g_sort = -np.sort(-g[possible_push - 1, A_k1])
-            delete_g = sum(g_sort[0 : j])
-            step_min = (R_k[i]!=0 + j) ** target_fun / K + sum_g - delete_g + (1 - (R_k[i] in C_E) + push_E) ** target_fun
-            if step_min <= g_min:
-                push_num = j
-                g_min = step_min
-                push_f = push_file.copy()
-                C_temp = C_old_all[i, :].copy()
-                C_temp = np.delete(C_temp, list(pos1[0 : j]))
-                C_temp = np.concatenate([C_temp, push_f])
-        push_file_all.append(push_f)
-        push_all[i] = push_num
-        P = np.concatenate([P, push_f])
-        #if len(C_all[i, :]) != len(C_temp):
-        #    test = 2;
-        C_all[i, :] = C_temp
-        #if C_all[i, 0] == C_all[i, 1]:
-        #    test = 1;
-    P = np.array(list(set(np.unique(P)).difference(set(R))))
-    return R, P, C_all
-'''
-
 def main():
     #x = range(0, len(avarage_cost_RL))
     #plt.plot(x, loss)
@@ -706,14 +356,10 @@ def main():
     cache = cache[0 : M]
     env = Environment(request, cache)
     # define the cost function
-    a = tf.placeholder("float", [None, ACTIONS])
-    y = tf.placeholder("float", [None])
+
     # store the previous observations in replay memory
-    D = deque()
     # epsilon
-    epsilon = INITIAL_EPSILON
 #       total_cost = 0
-    LOSS_FUN = []
     # mark
     R = list(set(request).difference(set(cache)))
     if len(R):
@@ -728,7 +374,6 @@ def main():
     for i in cache:
         cache_index[i - 1] += 1
     s_t = np.array(list(request_num) + list(cache_index) + RL)
-    s_0 = s_t
     
     # saving and loading networks
     str6 = "saved_networks_{KK}_{NN}_{MM}_{LL}/".format(KK=K, NN=N, MM=M, LL=L)
@@ -897,7 +542,8 @@ def main():
             
             # update the old values
         s_t = s_t1
-        
+        if t % 1000 == 0:
+            print("Times", t)
         t += 1
         total_cost += r_t
         avarage_cost = total_cost / t
