@@ -15,6 +15,7 @@ from tensorflow.python.framework import ops
 ops.reset_default_graph()
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+import argparse
 
 STEP_PER_ACTION = 1
 TARGET_FUNCTION = 4
@@ -35,8 +36,16 @@ EXPLORE = EXPLORE / QUICK
 MAX_ITERATION = MAX_ITERATION / QUICK
 
 # Network parameters
-K = 5  # The number of users
-N = 10  # The number of total files
+#K = 5  # The number of users
+#N = 10  # The number of total files
+parser = argparse.ArgumentParser(description='manual to this script')
+parser.add_argument('--K', type=int, default = 0)
+parser.add_argument('--N', type=int, default = 0)
+args = parser.parse_args()
+print(args.K)
+print(args.N)
+K = args.K
+N = args.N
 M = 3  #The cache size of edge servers
 L = 2  # The cache size of users
 C = np.zeros(M)  # The cache state of users
@@ -734,7 +743,16 @@ def main():
     else:
         print("Could not find old network weights")
     '''
+    
+    # saving and loading networks
     saver = tf.train.Saver()
+    sess.run(tf.initialize_all_variables())
+    checkpoint = tf.train.get_checkpoint_state("saved_networks")
+    if checkpoint and checkpoint.model_checkpoint_path:
+        saver.restore(sess, checkpoint.model_checkpoint_path)
+        print("Successfully loaded:", checkpoint.model_checkpoint_path)
+    else:
+        print("Could not find old network weights")
     sess.run(tf.global_variables_initializer())
     
     # initialization of user side

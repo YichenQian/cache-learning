@@ -20,7 +20,7 @@ import argparse
 STEP_PER_ACTION = 1
 TARGET_FUNCTION = 2
 STABLE_CACHE = 0
-MAX_ITERATION = 10000000
+MAX_ITERATION = 5000000
 NODE_NUM = 64
 LEARNING_RATE = 1e-4
 FINAL_EPSILON = 0.0001 # final value of epsilon
@@ -39,8 +39,8 @@ MAX_ITERATION = MAX_ITERATION / QUICK
 #K = 10  # The number of users
 #N = 10  # The number of total files
 parser = argparse.ArgumentParser(description='manual to this script')
-parser.add_argument('--K', type=int, default = 64)
-parser.add_argument('--N', type=int, default = 64)
+parser.add_argument('--K', type=int, default = 0)
+parser.add_argument('--N', type=int, default = 0)
 args = parser.parse_args()
 print(args.K)
 print(args.N)
@@ -1044,7 +1044,7 @@ def main():
             
             # save progress every (MAX_ITERATION / 10) iterations
             if t % (MAX_ITERATION / 10) == 0:
-                str6 = "saved_networks/cached-dqn_{KK}_{NN}_{MM}_{LL}-".format(KK=K, NN=N, MM=M, LL=L)
+                str6 = "saved_networks_{KK}_{NN}_{MM}_{LL}/cached-dqn-".format(KK=K, NN=N, MM=M, LL=L)
                 saver.save(sess, str6 , global_step = t)
     
             # save progress every 10000 iterations
