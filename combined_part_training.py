@@ -1044,7 +1044,8 @@ def main():
             
             # save progress every (MAX_ITERATION / 10) iterations
             if t % (MAX_ITERATION / 10) == 0:
-                saver.save(sess, 'saved_networks/' + 'cache' + '-dqn', global_step = t)
+                str6 = "saved_networks/cached-dqn_{KK}_{NN}_{MM}_{LL}-".format(KK=K, NN=N, MM=M, LL=L)
+                saver.save(sess, str6 , global_step = t)
     
             # save progress every 10000 iterations
     #        if t % 10000 == 0:
