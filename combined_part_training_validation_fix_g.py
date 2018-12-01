@@ -28,7 +28,7 @@ INITIAL_EPSILON = 0.1 # starting value of epsilon
 REPLAY_MEMORY = 50000 # number of previous transitions to remember
 BATCH = 32 # size of minibatch
 GAMMA = 1 # decay rate of past observations
-QUICK = 10
+QUICK = 100
 MAX_ITERATION = MAX_ITERATION / QUICK
 
 # Network parameters
@@ -57,8 +57,8 @@ NO_PUSH = 0
 GAMMA = 0.01  # decay rate of past observations
 TARGET_FUNCTION = 2
 # import g and Q
-str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
-str2 = "training_data/Q_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
+str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}_fixed_g_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
+str2 = "training_data/Q_{KK}_{NN}_{MM}_{LL}__fixed_g_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
 g = pickle.load(open(str1, 'rb'))
 Q_new = pickle.load(open(str2, 'rb'))
 
