@@ -731,7 +731,7 @@ def main():
     s_0 = s_t
     
     # saving and loading networks
-    str6 = "saved_networks_{KK}_{NN}_{MM}_{LL}/".format(KK=K, NN=N, MM=M, LL=L)
+    str6 = "saved_networks_{KK}_{NN}_{MM}_{LL}_fixed_g/".format(KK=K, NN=N, MM=M, LL=L)
     saver = tf.train.Saver()
     sess.run(tf.initialize_all_variables())
     checkpoint = tf.train.get_checkpoint_state(str6)
@@ -902,7 +902,7 @@ def main():
         total_cost += r_t
         avarage_cost = total_cost / t
     print(avarage_cost)
-    str5 = "simulation_result/cost_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
+    str5 = "simulation_result/cost_{KK}_{NN}_{MM}_{LL}_fixed_g.txt".format(KK=K, NN=N, MM=M, LL=L)
     pickle.dump(avarage_cost,open(str5, 'wb'))
     print ("write over")
     return avarage_cost
