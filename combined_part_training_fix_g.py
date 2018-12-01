@@ -934,7 +934,7 @@ def main():
             
             # save progress every (MAX_ITERATION / 10) iterations
             if t % (MAX_ITERATION / 10) == 0:
-                str6 = "saved_networks_{KK}_{NN}_{MM}_{LL}/cached-dqn-".format(KK=K, NN=N, MM=M, LL=L)
+                str6 = "saved_networks_{KK}_{NN}_{MM}_{LL}_fixed_g/cached-dqn-".format(KK=K, NN=N, MM=M, LL=L)
                 saver.save(sess, str6 , global_step = t)
     
             # save progress every 10000 iterations
@@ -951,9 +951,9 @@ def main():
         total_cost += r_t
         avarage_cost = total_cost / t
     print(avarage_cost)
-    str3 = "training_data/g_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
-    str4 = "training_data/Q_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
-    str5 = "simulation_result/cost_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
+    str3 = "training_data/g_{KK}_{NN}_{MM}_{LL}_fixed_g_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
+    str4 = "training_data/Q_{KK}_{NN}_{MM}_{LL}__fixed_g_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
+    str5 = "simulation_result/cost_{KK}_{NN}_{MM}_{LL}_fixed_g.txt".format(KK=K, NN=N, MM=M, LL=L)
     pickle.dump(g_out,open(str3, 'wb'))
     pickle.dump(Q_out,open(str4, 'wb'))
     pickle.dump(avarage_cost,open(str5, 'wb'))
