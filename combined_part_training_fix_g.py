@@ -760,13 +760,6 @@ def main():
 #    Q_new = np.zeros([2, 2, N, N + 1])
 #    g = np.zeros([N, N + 1])  # g value
     # Count the number of requests
-    req_times = np.zeros(N + 1)  # req_time of file n is in req_time[n], 0 represents no request
-    Q_old = Q_new.copy()
-    phi = np.zeros([1, 1, N, 1])
-    # Record the initial state
-    A_k0 = random.randint(1, N)
-    S_kf0 = 1
-    dS_kf0 = 1
     push_file_all = []
     C_old_all = C_all.copy()
     
@@ -777,8 +770,6 @@ def main():
         # user side
 #        R_u, P_u, C_all = user_side(env, q_new, q_old, C_all, cache_old, t)    
         # Begin the iteration
-        Q_old = Q_new.copy()
-        q_old = q_new.copy()
         # Update the user request
         for i in range(K):
             tran_p = random.random()
@@ -786,108 +777,7 @@ def main():
             while tran_p > f_sum[q_new[i], j]:
                 j += 1
             q_new[i] = j
-            req_times[q_new[i]] += 1 # modified
         
-        # Update the Q value and g
-        if t != 0:
-            Q_update = 0
-            for i in range(K):
-                req_old = q_old[i].copy()
-                req_new = q_new[i].copy()
-                # Find the cache action of last slot
-                [add, delete, maintain] = cache_diff(C_old_all[i, :], C_all[i, :])
-                add = np.array(add).astype(int)
-                delete = np.array(delete).astype(int)
-                maintain = np.array(maintain).astype(int)
-                # Update the Q value of each cache action
-                GAMA = np.zeros(N + 1)
-                for j in range(N + 1):
-                    if req_times[j] != 0:
-                        #GAMA[j] = 1.0 / np.sqrt(req_times[j])
-                        GAMA = 0.1 * np.ones(N + 1)
-                
-                # Compute phi(S_kf, f, A_k)
-                P_n = len(push_file_all[i])
-                r_c = np.zeros(N)
-                for ff in range(1, N + 1):
-                    r_c[ff - 1] = (1 - (req_old == ff) * (req_old in C_old_all[i, :]) * (req_old != 0))
-                phi = 1.0 / K / N * ((r_c + P_n) ** target_fun + ((req_old not in C_E) + (P_n not in C_E)) ** target_fun)
-                #phi = np.zeros([1, 1, N, 1])
-                #for j in range(N):
-                #    phi[1, 1, j, 1] = ph[j]
-                
-                # Add
-                if len(add):
-                    S_kf = 0  # 0 represent not cache, 1 represent cache
-                    dS_kf = 1  # 0 represent maintain, 1 represent add
-                    A_k = req_old  # no request = 0
-                    S_kf1 = 1  # 0 represent not cache, 1 represent cache
-                    A_k1 = req_new  # no request = 0
-                    num = len(add)
-                    Q_next = np.zeros(num)
-                    for j in range(num):
-                        c_a = (A_k1 == add[j]) * (1 - S_kf1)
-                        Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, add[j] - 1, A_k1].copy()
-                    Q_new[S_kf, dS_kf, add - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, add - 1, A_k].copy() + GAMA[A_k]*(phi[add - 1] + Q_next - Q_old[S_kf0, dS_kf0, add - 1, A_k0].copy())
-                    Q_update = Q_update + np.sum(Q_new[S_kf, dS_kf, add - 1, A_k] - Q_old[S_kf, dS_kf, add - 1, A_k])
-                
-                # Delete
-                if len(delete):
-                    S_kf = 1  # 0 represent not cache, 1 represent cache
-                    dS_kf = 0  # 0 represent delete, 1 represent maintain
-                    A_k = req_old  # no request = 0
-                    S_kf1 = 0  # 0 represent not cache, 1 represent cache
-                    A_k1 = req_new  # no request = 0
-                    num = len(delete)
-                    Q_next = np.zeros(num)
-                    for j in range(num):
-                        c_a = (A_k1 == delete[j]) * (1 - S_kf1)
-                        Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, delete[j] - 1, A_k1].copy()
-                    Q_new[S_kf, dS_kf, delete - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, delete - 1, A_k].copy() + GAMA[A_k]*(phi[delete - 1] + Q_next - Q_old[S_kf0, dS_kf0, delete - 1, A_k0].copy())
-                    Q_update = Q_update + np.sum(Q_new[S_kf, dS_kf, delete - 1, A_k] - Q_old[S_kf, dS_kf, delete - 1, A_k])
-                
-                # Maintain cache
-                if len(maintain):
-                    S_kf = 1  # 0 represent not cache, 1 represent cache
-                    dS_kf = 1  # 0 represent delete, 1 represent maintain
-                    A_k = req_old  # no request = 0
-                    S_kf1 = 1  # 0 represent not cache, 1 represent cache
-                    A_k1 = req_new  # no request = 0
-                    num = len(maintain)
-                    Q_next = np.zeros(num)
-                    for j in range(num):
-                        c_a = (A_k1 == maintain[j]) * (1 - S_kf1)
-                        Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, maintain[j] - 1, A_k1].copy()
-                    Q_new[S_kf, dS_kf, maintain - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, maintain - 1, A_k].copy() + GAMA[A_k]*(phi[maintain - 1] + Q_next - Q_old[S_kf0, dS_kf0, maintain - 1, A_k0].copy())
-                    Q_update = Q_update + np.sum(Q_new[S_kf, dS_kf, maintain - 1, A_k] - Q_old[S_kf, dS_kf, maintain - 1, A_k])
-                
-                # Maintain not cache
-                maintain_n = np.array(files)
-                maintain_n = np.delete(maintain_n, add)
-                maintain_n = np.delete(maintain_n, delete)
-                maintain_n = np.delete(maintain_n, maintain)
-                if len(maintain_n):
-                    S_kf = 0  # 0 represent not cache, 1 represent cache
-                    dS_kf = 1  # 0 represent maintain, 1 represent add
-                    A_k = req_old  # no request = 0
-                    S_kf1 = 1  # 0 represent not cache, 1 represent cache
-                    A_k1 = req_new  # no request = 0
-                    num = len(maintain_n)
-                    Q_next = np.zeros(num)
-                    for j in range(num):
-                        c_a = (A_k1 == maintain_n[j]) * (1 - S_kf1)
-                        Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, maintain_n[j] - 1, A_k1].copy()
-                    Q_new[S_kf, dS_kf, maintain_n - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, maintain_n - 1, A_k].copy() + GAMA[A_k]*(phi[maintain_n - 1] + Q_next - Q_old[S_kf0, dS_kf0, maintain_n - 1, A_k0].copy())
-                    Q_update = Q_update + np.sum(Q_new[S_kf, dS_kf, maintain_n - 1, A_k] - Q_old[S_kf, dS_kf, maintain_n - 1, A_k])
-                
-                # Update g
-                #print(A_k)
-                for j in range(N):
-                    S_kf = (j + 1 in C_old_all[i, :]) + 0
-                    #g[j, A_k] = min(Q_new[S_kf0, :, j, A_k0]) + Q_new[S_kf, S_kf, j, A_k].copy() - phi[j]
-                    g[j, A_k] = Q_new[1, 1, j, A_k].copy() + Q_new[0, 0, j, A_k].copy() - phi[j]
-            #print(Q_update)
-    
         # Update the reacitve transmission
         R_u = np.zeros(K)
         R_u = R_u.astype(int)
