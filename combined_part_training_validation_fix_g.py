@@ -374,7 +374,7 @@ def main():
     # saving and loading networks
     str6 = "saved_networks_{KK}_{NN}_{MM}_{LL}_fixed_g/".format(KK=K, NN=N, MM=M, LL=L)
     saver = tf.train.Saver()
-    sess.run(tf.initialize_all_variables())
+    sess.run(tf.global_variables_initializer())
     checkpoint = tf.train.get_checkpoint_state(str6)
     if checkpoint and checkpoint.model_checkpoint_path:
         saver.restore(sess, checkpoint.model_checkpoint_path)
