@@ -1061,6 +1061,7 @@ def main():
         total_cost += r_t
         avarage_cost = total_cost / t
     print(avarage_cost)
+    sess.close()
     str3 = "training_data/g_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
     str4 = "training_data/Q_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
     str5 = "simulation_result/cost_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
