@@ -1,3 +1,6 @@
-model_checkpoint_path: "cached-dqn--1000000"
-all_model_checkpoint_paths: "cached-dqn--500000"
+model_checkpoint_path: "cached-dqn--3000000"
 all_model_checkpoint_paths: "cached-dqn--1000000"
+all_model_checkpoint_paths: "cached-dqn--1500000"
+all_model_checkpoint_paths: "cached-dqn--2000000"
+all_model_checkpoint_paths: "cached-dqn--2500000"
+all_model_checkpoint_paths: "cached-dqn--3000000"
