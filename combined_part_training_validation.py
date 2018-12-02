@@ -63,6 +63,10 @@ str2 = "training_data/Q_{KK}_{NN}_{MM}_{LL}_validation.txt".format(KK=K, NN=N, M
 g = pickle.load(open(str1, 'rb'))
 Q_new = pickle.load(open(str2, 'rb'))
 
+# TEST
+g = np.zeros([N, N + 1])
+for i in range(N + 1):
+    g[i%10, i] = -0.1
 
 # generate the transition probability
 ga = 0.5;
@@ -378,7 +382,7 @@ def main():
     s_t = np.array(list(request_num) + list(cache_index) + RL)
     
     # saving and loading networks
-    str6 = "saved_networks_{KK}_{NN}_{MM}_{LL}/".format(KK=K, NN=N, MM=M, LL=L)
+    str6 = "saved_networks_{KK}_{NN}_{MM}_{LL}_fixed_g/".format(KK=K, NN=N, MM=M, LL=L)
     saver = tf.train.Saver()
     sess.run(tf.global_variables_initializer())
     checkpoint = tf.train.get_checkpoint_state(str6)
