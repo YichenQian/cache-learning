@@ -8,11 +8,20 @@ from itertools import combinations
 
 GAMMA = 0.01 # decay rate of past observations
 TARGET_FUNCTION = 2.0
-MAX_ITERATION = 10000
+MAX_ITERATION = 100000
+import argparse
 
 # Network parameters
-K = 15  # The number of users
-N = 10  # The number of total files
+#K = 15  # The number of users
+#N = 10  # The number of total files
+parser = argparse.ArgumentParser(description='manual to this script')
+parser.add_argument('--K', type=int, default = 0)
+parser.add_argument('--N', type=int, default = 0)
+args = parser.parse_args()
+K = args.K
+N = args.N
+print(K)
+print(N)
 M = 2  # The cache size of users
 L = 3  # The cache size of edge servers
 C = np.zeros(M)  # The cache state of users
@@ -29,14 +38,7 @@ target_fun = 2.0
 NO_PUSH = 0
 # import g
 str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
-g=pickle.load(open(str1, 'rb'))
-
-
-# TEST
-g = np.zeros([N, N + 1])
-for i in range(N + 1):
-    g[i%10, i] = -0.5
-
+g = pickle.load(open(str1, 'rb'))
 
 # generate the transition probability
 ga = 0.5
