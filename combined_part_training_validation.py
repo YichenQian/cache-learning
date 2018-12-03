@@ -27,7 +27,7 @@ INITIAL_EPSILON = 0.1 # starting value of epsilon
 REPLAY_MEMORY = 50000 # number of previous transitions to remember
 BATCH = 32 # size of minibatch
 GAMMA = 1 # decay rate of past observations
-QUICK = 100
+QUICK = 1000
 MAX_ITERATION = MAX_ITERATION / QUICK
 
 # Network parameters
