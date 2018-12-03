@@ -304,7 +304,7 @@ for time in range(0, times):
             g_sort = np.sort(g[no_push - 1, A_k1])
             sum_g = np.sum(g_sort[0 : M])
             pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
-            g_sort1 = -np.sort(-g[possible_push - 1, A_k1])
+            g_sort1 = -np.sort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
             delete_g = np.sum(g_sort1[0 : M])
             if delete_g > sum_g:
                 g_min = g_min - delete_g + sum_g
@@ -321,8 +321,8 @@ for time in range(0, times):
                     if push_file[k] not in C_E:
                         push_E += 1
                 pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
-                g_sort = -np.sort(-g[possible_push - 1, A_k1])
-                delete_g = np.sum(g_sort[0 : j])
+                g_sort1 = -np.sort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
+                delete_g = np.sum(g_sort1[0 : j])
                 #step_min = 1 / K * (((R_k[i]!=0) + j) ** target_fun + sum_g - delete_g + ((R_k[i] not in C_E) + push_E) ** target_fun)
                 step_min =  1.0 / K * (len(R) + j) ** target_fun + sum_g - delete_g + 1.0 / K * (len(R_e) + push_E) ** target_fun
                 if step_min <= g_min:
