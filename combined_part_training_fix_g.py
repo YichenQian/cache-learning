@@ -815,7 +815,7 @@ def main():
             g_sort = np.sort(g[no_push - 1, A_k1])
             sum_g = np.sum(g_sort[0 : L])
             pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
-            g_sort1 = -np.sort(-g[possible_push - 1, A_k1])
+            g_sort1 = -np.sort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
             delete_g = np.sum(g_sort1[0 : L])
             if delete_g > sum_g:
                 g_min = g_min - delete_g + sum_g

@@ -11,7 +11,7 @@ TARGET_FUNCTION = 2.0
 MAX_ITERATION = 10000
 
 # Network parameters
-K = 5  # The number of users
+K = 15  # The number of users
 N = 10  # The number of total files
 M = 2  # The cache size of users
 L = 3  # The cache size of edge servers
@@ -31,12 +31,12 @@ NO_PUSH = 0
 str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
 g=pickle.load(open(str1, 'rb'))
 
-'''
+
 # TEST
 g = np.zeros([N, N + 1])
 for i in range(N + 1):
-    g[i%10, i] = -0.1
-'''
+    g[i%10, i] = -0.5
+
 
 # generate the transition probability
 ga = 0.5
@@ -91,7 +91,6 @@ for time in range(0, times):
     C_old_all_LFU = C_all.copy()
     C_old_all_RAND = C_all.copy()
     
-    g = np.zeros([N, N + 1])  # g value
     count = np.zeros(N)
     
     t = 0  # Time
@@ -203,12 +202,13 @@ for time in range(0, times):
             g_sort = np.sort(g[no_push - 1, A_k1])
             sum_g = np.sum(g_sort[0 : M])
             pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
-            g_sort1 = -np.sort(-g[possible_push - 1, A_k1])
+            g_sort1 = -np.sort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
             delete_g = np.sum(g_sort1[0 : M])
             if delete_g > sum_g:
                 g_min = g_min - delete_g + sum_g
                 C_temp = np.delete(C_temp, list(pos1[0 : M]))
                 C_temp = np.concatenate([C_temp, no_push[pos[0 : M]]])
+            
             
             for j in range(1, min(len(possible_push - 1), M) + 1):
                 pos = np.argsort(g[possible_push - 1, A_k1])
