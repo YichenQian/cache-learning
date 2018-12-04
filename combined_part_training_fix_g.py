@@ -30,7 +30,7 @@ BATCH = 32 # size of minibatch
 OBSERVE = 20000. # timesteps to observe before training
 EXPLORE = 3000000. # frames over which to anneal epsilon
 GAMMA = 1 # decay rate of past observations
-QUICK = 1
+QUICK = 10
 OBSERVE = OBSERVE / QUICK
 EXPLORE = EXPLORE / QUICK
 MAX_ITERATION = MAX_ITERATION / QUICK
@@ -67,6 +67,11 @@ g = pickle.load(open(str1, 'rb'))
 Q_new = pickle.load(open(str2, 'rb'))
 g_out = 0.0
 Q_out = 0.0
+
+#TEST
+g = np.zeros([N, N + 1])
+for i in range(N + 1):
+    g[i % N, i] = -0.5
 
 # generate the transition probability
 ga = 0.5;
