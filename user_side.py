@@ -214,7 +214,7 @@ for time in range(0, times):
                 maintain_n = np.delete(maintain_n, maintain)
                 if len(maintain_n):
                     S_kf = 0  # 0 represent not cache, 1 represent cache
-                    dS_kf = 1  # 0 represent maintain, 1 represent add
+                    dS_kf = 0  # 0 represent maintain, 1 represent add
                     A_k = req_old  # no request = 0
                     S_kf1 = 1  # 0 represent not cache, 1 represent cache
                     A_k1 = req_new  # no request = 0
@@ -236,6 +236,7 @@ for time in range(0, times):
                     phi0 = 1.0 / K / N * ((1 + P_n) ** target_fun + ((req_old not in C_E) + (P_n not in C_E)) ** target_fun)
                     phi1 = 1.0 / K / N * ((r_c1 + P_n) ** target_fun + ((req_old not in C_E) + (P_n not in C_E)) ** target_fun)
                     g[j, A_k] = Q_new[1, 1, j, A_k].copy() + Q_new[0, 0, j, A_k].copy() - phi1 + phi0
+                    #g[j, A_k] = Q_new[1, 1, j, A_k].copy() + Q_new[0, 0, j, A_k].copy() - phi[j]
                 
         # Update the reacitve transmission
         R = np.zeros(K)

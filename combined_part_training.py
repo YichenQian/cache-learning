@@ -868,7 +868,7 @@ def main():
                 maintain_n = np.delete(maintain_n, maintain)
                 if len(maintain_n):
                     S_kf = 0  # 0 represent not cache, 1 represent cache
-                    dS_kf = 1  # 0 represent maintain, 1 represent add
+                    dS_kf = 0  # 0 represent maintain, 1 represent add
                     A_k = req_old  # no request = 0
                     S_kf1 = 1  # 0 represent not cache, 1 represent cache
                     A_k1 = req_new  # no request = 0
