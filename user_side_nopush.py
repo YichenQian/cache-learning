@@ -310,7 +310,7 @@ for time in range(0, times):
                 g_min = g_min - delete_g + sum_g
                 C_temp = np.delete(C_temp, list(pos1[0 : M]))
                 C_temp = np.concatenate([C_temp, no_push[pos[0 : M]]])
-
+            '''
             for j in range(1, min(len(possible_push - 1), M) + 1):
                 pos = np.argsort(g[possible_push - 1, A_k1])
                 g_sort = np.sort(g[possible_push - 1, A_k1])
@@ -332,7 +332,7 @@ for time in range(0, times):
                     C_temp = C_old_all[i, :].copy()
                     C_temp = np.delete(C_temp, list(pos1[0 : j]))
                     C_temp = np.concatenate([C_temp, push_f])
-
+            '''
             push_file_all.append(push_f)
             push_all[i] = push_num
             P = np.concatenate([P, push_f])
@@ -422,8 +422,8 @@ print("RAND = {}".format(avarage_cost_all_RAND))
 print(P_time)
 
 # save g to g.txt
-str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
-str2 = "training_data/Q_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
+str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}_nopush.txt".format(KK=K, NN=N, MM=M, LL=L)
+str2 = "training_data/Q_{KK}_{NN}_{MM}_{LL}_nopush.txt".format(KK=K, NN=N, MM=M, LL=L)
 pickle.dump(g_out,open(str1, 'wb'))
 pickle.dump(Q_out,open(str2, 'wb'))
 print ("write over")
