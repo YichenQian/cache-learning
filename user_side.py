@@ -233,11 +233,11 @@ for time in range(0, times):
                 
                 for j in range(N):
                     S_kf = (j + 1 in C_old_all[i, :]) + 0
-                    g[j, A_k] = min(Q_new[S_kf0, :, j, A_k0]) + Q_new[S_kf, S_kf, j, A_k].copy() - phi[j]
-                    #r_c1 = (1 - (req_old == ff) * (req_old != 0))
-                    #phi0 = 1.0 / K / N * ((1 + P_n) ** target_fun + ((req_old not in C_E) + (P_n not in C_E)) ** target_fun)
-                    #phi1 = 1.0 / K / N * ((r_c1 + P_n) ** target_fun + ((req_old not in C_E) + (P_n not in C_E)) ** target_fun)
-                    #g[j, A_k] = Q_new[1, 1, j, A_k].copy() + Q_new[0, 0, j, A_k].copy() - phi1 + phi0
+                    #g[j, A_k] = min(Q_new[S_kf0, :, j, A_k0]) + Q_new[S_kf, S_kf, j, A_k].copy() - phi[j]
+                    r_c1 = (1 - (req_old == ff) * (req_old != 0))
+                    phi0 = 1.0 / K / N * ((1 + P_n) ** target_fun + ((req_old not in C_E) + (P_n not in C_E)) ** target_fun)
+                    phi1 = 1.0 / K / N * ((r_c1 + P_n) ** target_fun + ((req_old not in C_E) + (P_n not in C_E)) ** target_fun)
+                    g[j, A_k] = Q_new[1, 1, j, A_k].copy() + Q_new[0, 0, j, A_k].copy() - phi1 + phi0
                     #g[j, A_k] = Q_new[1, 1, j, A_k].copy() + Q_new[0, 0, j, A_k].copy() - phi[j]
                 
         # Update the reacitve transmission
