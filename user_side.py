@@ -9,7 +9,7 @@ import argparse
 
 GAMMA = 0.01 # decay rate of past observations
 TARGET_FUNCTION = 2.0
-MAX_ITERATION = 100000
+MAX_ITERATION = 1000000
 
 # Network parameters
 #K = 15  # The number of users
@@ -147,8 +147,8 @@ for time in range(0, times):
                 GAMA = np.zeros(N + 1)
                 for j in range(N + 1):
                     if req_times[j] != 0:
-                        GAMA[j] = 1.0 / np.sqrt(req_times[j])
-                        #GAMA = 0.1 * np.ones(N + 1)
+                        #GAMA[j] = 1.0 / np.sqrt(req_times[j])
+                        GAMA = 0.1 * np.ones(N + 1)
                 
                 # Compute phi(S_kf, f, A_k)
                 P_n = len(push_file_all[i])
