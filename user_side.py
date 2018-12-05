@@ -150,15 +150,15 @@ for time in range(0, times):
                 GAMA = np.zeros(N + 1)
                 for j in range(N + 1):
                     if req_times[j] != 0:
-                        #GAMA[j] = 1.0 / np.sqrt(req_times[j])
+                        #GAMA[j] = (1.0 / req_times[j]) ** (1. / 3)
                         #GAMA[j] = np.sqrt(math.log(t + 1) / req_times[j])
-                        GAMA = 0.01 * np.ones(N + 1)
+                        GAMA = 0.02 * np.ones(N + 1)
                 
                 # Compute phi(S_kf, f, A_k)
                 P_n = len(push_file_all[i])
                 r_c = np.zeros(N)
                 for ff in range(1, N + 1):
-                    r_c[ff - 1] = (1 - (req_new == ff) * (req_new in C_all[i, :]) * (req_new != 0))
+                    r_c[ff - 1] = (1 - (req_new == ff) * (req_new in C_all[i, :])) * (req_new != 0)
                 phi = 1.0 / K / N * ((r_c + P_n) ** target_fun + ((req_new not in C_E) + (P_n not in C_E)) ** target_fun)
                 #phi = np.zeros([1, 1, N, 1])
                 #for j in range(N):
