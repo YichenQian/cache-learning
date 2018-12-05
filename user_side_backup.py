@@ -158,8 +158,8 @@ for time in range(0, times):
                 P_n = len(push_file_all[i])
                 r_c = np.zeros(N)
                 for ff in range(1, N + 1):
-                    r_c[ff - 1] = (1 - (req_new == ff) * (req_new in C_all[i, :]) * (req_new != 0))
-                phi = 1.0 / K / N * ((r_c + P_n) ** target_fun + ((req_new not in C_E) + (P_n not in C_E)) ** target_fun)
+                    r_c[ff - 1] = (1 - (req_old == ff) * (req_old in C_old_all[i, :]) * (req_old != 0))
+                phi = 1.0 / K / N * ((r_c + P_n) ** target_fun + ((req_old not in C_E) + (P_n not in C_E)) ** target_fun)
                 #phi = np.zeros([1, 1, N, 1])
                 #for j in range(N):
                 #    phi[1, 1, j, 1] = ph[j]
