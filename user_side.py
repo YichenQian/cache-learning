@@ -174,8 +174,9 @@ for time in range(0, times):
                     num = len(add)
                     Q_next = np.zeros(num)
                     for j in range(num):
-                        c_a = (A_k1 == add[j]) * (1 - S_kf1)
-                        Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, add[j] - 1, A_k1].copy()
+                        #c_a = (A_k1 == add[j]) * (1 - S_kf1)
+                        #Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, add[j] - 1, A_k1].copy()
+                        Q_next[j] = np.min(Q_old[S_kf1, :, add[j] - 1, A_k1])
                     Q_new[S_kf, dS_kf, add - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, add - 1, A_k].copy() + GAMA[A_k]*(phi[add - 1] + Q_next - Q_old[S_kf0, dS_kf0, add - 1, A_k0].copy())
                     # Q_update = Q_update + sum(Q_new(S_kf, dS_kf, add, A_k) - Q_old(S_kf, dS_kf, add, A_k))
                 
@@ -189,8 +190,9 @@ for time in range(0, times):
                     num = len(delete)
                     Q_next = np.zeros(num)
                     for j in range(num):
-                        c_a = (A_k1 == delete[j]) * (1 - S_kf1)
-                        Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, delete[j] - 1, A_k1].copy()
+                        #c_a = (A_k1 == delete[j]) * (1 - S_kf1)
+                        #Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, delete[j] - 1, A_k1].copy()
+                        Q_next[j] = np.min(Q_old[S_kf1, :, add[j] - 1, A_k1])
                     Q_new[S_kf, dS_kf, delete - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, delete - 1, A_k].copy() + GAMA[A_k]*(phi[delete - 1] + Q_next - Q_old[S_kf0, dS_kf0, delete - 1, A_k0].copy())
                     # Q_update = Q_update + sum(Q_new(S_kf, dS_kf, delete, A_k) - Q_old(S_kf, dS_kf, delete, A_k))
                 
@@ -204,8 +206,9 @@ for time in range(0, times):
                     num = len(maintain)
                     Q_next = np.zeros(num)
                     for j in range(num):
-                        c_a = (A_k1 == maintain[j]) * (1 - S_kf1)
-                        Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, maintain[j] - 1, A_k1].copy()
+                        #c_a = (A_k1 == maintain[j]) * (1 - S_kf1)
+                        #Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, maintain[j] - 1, A_k1].copy()
+                        Q_next[j] = np.min(Q_old[S_kf1, :, add[j] - 1, A_k1])
                     Q_new[S_kf, dS_kf, maintain - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, maintain - 1, A_k].copy() + GAMA[A_k]*(phi[maintain - 1] + Q_next - Q_old[S_kf0, dS_kf0, maintain - 1, A_k0].copy())
                     # Q_update = Q_update + sum(Q_new(S_kf, dS_kf, maintain, A_k) - Q_old(S_kf, dS_kf, maintain, A_k))
                 
@@ -223,8 +226,9 @@ for time in range(0, times):
                     num = len(maintain_n)
                     Q_next = np.zeros(num)
                     for j in range(num):
-                        c_a = (A_k1 == maintain_n[j]) * (1 - S_kf1)
-                        Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, maintain_n[j] - 1, A_k1].copy()
+                        #c_a = (A_k1 == maintain_n[j]) * (1 - S_kf1)
+                        #Q_next[j] = Q_old[S_kf1, S_kf1 + c_a, maintain_n[j] - 1, A_k1].copy()
+                        Q_next[j] = np.min(Q_old[S_kf1, :, add[j] - 1, A_k1])
                     Q_new[S_kf, dS_kf, maintain_n - 1, A_k] = (1-GAMA[A_k]) * Q_old[S_kf, dS_kf, maintain_n - 1, A_k].copy() + GAMA[A_k]*(phi[maintain_n - 1] + Q_next - Q_old[S_kf0, dS_kf0, maintain_n - 1, A_k0].copy())
                     # Q_update = Q_update + sum(Q_new(S_kf, dS_kf, add, A_k) - Q_old(S_kf, dS_kf, add, A_k))
                 
