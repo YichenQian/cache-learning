@@ -132,7 +132,7 @@ for time in range(0, times):
             while tran_p > f_sum[q_new[i], j]:
                 j += 1
             q_new[i] = j
-        req_times[q_new[i]] += 1 # modified
+            req_times[q_new[i]] += 1 # modified
         
         # Update the Q value and g
         if t != 0:
