@@ -150,9 +150,9 @@ for time in range(0, times):
                 GAMA = np.zeros(N + 1)
                 for j in range(N + 1):
                     if req_times[j] != 0:
-                        #GAMA[j] = (1.0 / req_times[j]) ** (1. / 3)
+                        GAMA[j] = (1.0 / req_times[j]) ** (1. / 2)
                         #GAMA[j] = np.sqrt(math.log(t + 1) / req_times[j])
-                        GAMA = 0.02 * np.ones(N + 1)
+                        #GAMA = 0.02 * np.ones(N + 1)
                 
                 # Compute phi(S_kf, f, A_k)
                 P_n = len(push_file_all[i])
