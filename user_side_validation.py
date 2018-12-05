@@ -40,10 +40,12 @@ NO_PUSH = 0
 str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
 g = pickle.load(open(str1, 'rb'))
 
+'''
 #TEST
 g = np.zeros([N, N + 1])
 for i in range(N + 1):
     g[i % N, i] = -0.5
+'''
 
 # generate the transition probability
 ga = 0.5
