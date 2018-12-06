@@ -781,7 +781,7 @@ def main():
             j = 0
             while tran_p > f_sum[q_new[i], j]:
                 j += 1
-                q_new[i] = j
+            q_new[i] = j
         
         # Update the reacitve transmission
         R_u = np.zeros(K)
