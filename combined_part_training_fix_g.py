@@ -793,7 +793,7 @@ def main():
         R_u = np.unique(R_u)
         if R_u[0] == 0:
             np.delete(R_u, 0)
-        R_e = list(set(R_u).difference(set(C_E))) # R at edge server side
+        R_e = list(set(R_u).difference(set(cache))) # R at edge server side
             
         C_old_all = C_all.copy()
         # Determine the per-uer push
@@ -834,7 +834,7 @@ def main():
                 push_file = possible_push[list(pos[0 : j])].copy()
                 push_E = 0
                 for k in range(j):
-                    if push_file[k] not in C_E:
+                    if push_file[k] not in cache:
                         push_E += 1
                 pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
                 g_sort = -np.sort(-g[possible_push - 1, A_k1])
@@ -858,8 +858,6 @@ def main():
             #if C_all[i, 0] == C_all[i, 1]:
             #    test = 1;
         P_u = np.array(list(set(np.unique(P)).difference(set(R_u))))
-        g_out = g
-        Q_out = Q_new
 
 
         # edge server side            
@@ -871,7 +869,7 @@ def main():
         a_t = np.zeros([ACTIONS])
         action_index = 0
         #if t % STEP_PER_ACTION == 0:
-        if STABLE_CACHE == 0:
+        if STABLE_CACHE == 1:
             action_index = random.randrange(ACTIONS)
         a_t[action_index] = 1
         if STABLE_CACHE == 0:
