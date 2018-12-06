@@ -71,7 +71,7 @@ Q_out = 0.0
 #TEST
 g = np.zeros([N, N + 1])
 for i in range(N + 1):
-    g[i % N, i] = -0.5
+    g[i % N, i] = -0.3
 
 # generate the transition probability
 ga = 0.5;
@@ -781,7 +781,7 @@ def main():
             j = 0
             while tran_p > f_sum[q_new[i], j]:
                 j += 1
-            q_new[i] = j
+                q_new[i] = j
         
         # Update the reacitve transmission
         R_u = np.zeros(K)
