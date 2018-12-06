@@ -953,6 +953,7 @@ def main():
         t += 1
         total_cost += r_t
         avarage_cost = total_cost / t
+        print(avarage_cost)
     print(avarage_cost)
     sess.close()
     str5 = "simulation_result/cost_{KK}_{NN}_{MM}_{LL}_fixed_g.txt".format(KK=K, NN=N, MM=M, LL=L)
