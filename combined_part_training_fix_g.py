@@ -884,7 +884,7 @@ def main():
                 epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / EXPLORE
         # run the selected action and observe next state and reward
         r_t, R, P = env._step(action_index)
-#        r_t += (len(P_u) + len(R_u)) ** TARGET_FUNCTION
+        r_t += (len(P_u) + len(R_u)) ** TARGET_FUNCTION
     
         RL = [len(R)]
         new_request_num = np.zeros(N + 1)
