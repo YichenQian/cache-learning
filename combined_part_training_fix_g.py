@@ -1,4 +1,4 @@
-#import sys
+it#import sys
 #if sys.getdefaultencoding()!='utf-8':
 #    reload(sys)
 #    sys.setdefaultencoding('utf-8')
@@ -121,9 +121,10 @@ class Environment(object):
             self.request_state[i] = j
         return  self.request_state
     
-    def _step(self, cache_action):
+    def _step(self, cache_action, R_u, P_u):
         # compute the reactive transmission, push and cost
-        R = list(set(self.request_state).difference(set(self.cache_state)))
+        R = list(set(R_u).difference(set(self.cache_state)))
+        P_eu = list(set(P_u).difference(set(self.cache_state)))
         if len(R):
             R.sort()
             if R[0] == 0:
@@ -131,7 +132,7 @@ class Environment(object):
         self.old_cache_state = self.cache_state
         self.cache_state = list(cob[cache_action])
         add = list(set(self.cache_state).difference(set(self.old_cache_state)))
-        P = list(set(add).difference(set(R)))
+        P = list(set(add + P_eu).difference(set(R)))
        # cost_0 = ((len(R) + len(P)) / min(N, M + K)) ** TARGET_FUNCTION
         cost_0 = (len(R) + len(P)) ** TARGET_FUNCTION
         
@@ -883,7 +884,7 @@ def main():
                 epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / EXPLORE
         # run the selected action and observe next state and reward
         r_t, R, P = env._step(action_index)
-        r_t += (len(P_u) + len(R_u)) ** TARGET_FUNCTION
+#        r_t += (len(P_u) + len(R_u)) ** TARGET_FUNCTION
     
         RL = [len(R)]
         new_request_num = np.zeros(N + 1)
