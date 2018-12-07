@@ -248,7 +248,7 @@ for time in range(0, times):
         R = np.zeros(K)
         R = R.astype(int)
         for i in range(K):
-            if q_new[i] != 0 and q_new[i] not in C_all[i, :]:
+            if q_new[i] != 0 and (q_new[i] not in C_all[i, :]):
                 R[i] = q_new[i].copy()
         R_k = R.copy()
         R = np.unique(R)

@@ -788,7 +788,7 @@ def main():
         R_u = np.zeros(K)
         R_u = R_u.astype(int)
         for i in range(K):
-            if q_new[i] != 0 and q_new[i] not in C_all[i, :]:
+            if q_new[i] != 0 and (q_new[i] not in C_all[i, :]):
                 R_u[i] = q_new[i].copy()
 #        R_k = R_u.copy()
         R_u = np.unique(R_u)
