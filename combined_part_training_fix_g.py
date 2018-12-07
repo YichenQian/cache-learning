@@ -793,7 +793,7 @@ def main():
 #        R_k = R_u.copy()
         R_u = np.unique(R_u)
         if R_u[0] == 0:
-            np.delete(R_u, 0)
+            R_u = np.delete(R_u, 0)
         R_e = list(set(R_u).difference(set(cache))) # R at edge server side
             
         C_old_all = C_all.copy()
