@@ -884,7 +884,7 @@ def main():
                 epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / EXPLORE
         # run the selected action and observe next state and reward
         r_t, R, P = env._step(action_index, R_u, P_u)
-        r_t += (len(P_u) + len(R_u)) ** TARGET_FUNCTION
+#        r_t += (len(P_u) + len(R_u)) ** TARGET_FUNCTION
     
         RL = [len(R)]
         new_request_num = np.zeros(N + 1)
@@ -952,7 +952,7 @@ def main():
             s_t = s_t1
         
         t += 1
-        total_cost += r_t
+        total_cost += r_t +(len(P_u) + len(R_u)) ** TARGET_FUNCTION
         avarage_cost = total_cost / t
         if t % 1000 == 1:
             print(avarage_cost)
