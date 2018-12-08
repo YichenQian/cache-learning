@@ -62,6 +62,11 @@ str2 = "training_data/Q_{KK}_{NN}_{MM}_{LL}__fixed_g_validation.txt".format(KK=K
 g = pickle.load(open(str1, 'rb'))
 Q_new = pickle.load(open(str2, 'rb'))
 
+#TEST
+g = np.zeros([N, N + 1])
+for i in range(N + 1):
+    g[i % N, i] = -0.3
+
 
 # generate the transition probability
 ga = 0.5;
