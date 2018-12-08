@@ -111,9 +111,10 @@ class Environment(object):
             self.request_state[i] = j
         return  self.request_state
     
-    def _step(self, cache_action):
+    def _step(self, cache_action, R_u, P_u):
         # compute the reactive transmission, push and cost
-        R = list(set(self.request_state).difference(set(self.cache_state)))
+        R = list(set(R_u).difference(set(self.cache_state)))
+        P_eu = list(set(P_u).difference(set(self.cache_state)))
         if len(R):
             R.sort()
             if R[0] == 0:
@@ -121,7 +122,7 @@ class Environment(object):
         self.old_cache_state = self.cache_state
         self.cache_state = list(cob[cache_action])
         add = list(set(self.cache_state).difference(set(self.old_cache_state)))
-        P = list(set(add).difference(set(R)))
+        P = list(set(add + P_eu).difference(set(R)))
        # cost_0 = ((len(R) + len(P)) / min(N, M + K)) ** TARGET_FUNCTION
         cost_0 = (len(R) + len(P)) ** TARGET_FUNCTION
         
@@ -422,8 +423,8 @@ def main():
 #        R_k = R_u.copy()
         R_u = np.unique(R_u)
         if R_u[0] == 0:
-            np.delete(R_u, 0)
-        R_e = list(set(R_u).difference(set(C_E))) # R at edge server side
+            R_u = np.delete(R_u, 0)
+        R_e = list(set(R_u).difference(set(cache))) # R at edge server side
             
         C_old_all = C_all.copy()
         # Determine the per-uer push
@@ -464,7 +465,7 @@ def main():
                 push_file = possible_push[list(pos[0 : j])].copy()
                 push_E = 0
                 for k in range(j):
-                    if push_file[k] not in C_E:
+                    if push_file[k] not in cache:
                         push_E += 1
                 pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
                 g_sort = -np.sort(-g[possible_push - 1, A_k1])
@@ -500,7 +501,7 @@ def main():
         a_t = np.zeros([ACTIONS])
         action_index = 0
         #if t % STEP_PER_ACTION == 0:
-        if STABLE_CACHE == 0:
+        if STABLE_CACHE == 1:
             action_index = random.randrange(ACTIONS)
         a_t[action_index] = 1
         if STABLE_CACHE == 0:
@@ -511,8 +512,8 @@ def main():
         a_t[action_index] = 1
         
         # run the selected action and observe next state and reward
-        r_t, R, P = env._step(action_index)
-        r_t += (len(P_u) + len(R_u)) ** TARGET_FUNCTION
+        r_t, R, P = env._step(action_index, R_u, P_u)
+#        r_t += (len(P_u) + len(R_u)) ** TARGET_FUNCTION
     
         RL = [len(R)]
         new_request_num = np.zeros(N + 1)
@@ -541,7 +542,8 @@ def main():
         if t % 1000 == 0:
             print("Times", t)
         t += 1
-        total_cost += r_t
+        total_cost += r_t + (len(P_u) + len(R_u)) ** TARGET_FUNCTION
+#        total_cost += r_t
         avarage_cost = total_cost / t
     print(avarage_cost)
     sess.close()
