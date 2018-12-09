@@ -20,7 +20,7 @@ import argparse
 STEP_PER_ACTION = 1
 TARGET_FUNCTION = 2
 STABLE_CACHE = 0
-MAX_ITERATION = 10000000
+MAX_ITERATION = 100000
 NODE_NUM = 64
 LEARNING_RATE = 1e-4
 FINAL_EPSILON = 0.0001 # final value of epsilon
@@ -28,7 +28,7 @@ INITIAL_EPSILON = 0.1 # starting value of epsilon
 REPLAY_MEMORY = 50000 # number of previous transitions to remember
 BATCH = 32 # size of minibatch
 GAMMA = 1 # decay rate of past observations
-QUICK = 100
+QUICK = 1
 MAX_ITERATION = MAX_ITERATION / QUICK
 
 # Network parameters
@@ -57,10 +57,10 @@ NO_PUSH = 0
 GAMMA = 0.01  # decay rate of past observations
 TARGET_FUNCTION = 2
 # import g and Q
-str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}_fixed_g_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
-str2 = "training_data/Q_{KK}_{NN}_{MM}_{LL}__fixed_g_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
-g = pickle.load(open(str1, 'rb'))
-Q_new = pickle.load(open(str2, 'rb'))
+#str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}_fixed_g_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
+#str2 = "training_data/Q_{KK}_{NN}_{MM}_{LL}__fixed_g_validation.txt".format(KK=K, NN=N, MM=M, LL=L)
+#g = pickle.load(open(str1, 'rb'))
+#Q_new = pickle.load(open(str2, 'rb'))
 
 #TEST
 g = np.zeros([N, N + 1])
