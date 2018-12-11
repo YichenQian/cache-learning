@@ -44,7 +44,7 @@ g = pickle.load(open(str1, 'rb'))
 #TEST
 g = np.zeros([N, N + 1])
 for i in range(N + 1):
-    g[i % N, i] = -0.5
+    g[i % N, i] = -0.2
 
 
 # generate the transition probability
