@@ -132,7 +132,7 @@ class Environment(object):
         self.old_cache_state = self.cache_state
         self.cache_state = list(cob[cache_action])
         add = list(set(self.cache_state).difference(set(self.old_cache_state)))
-       # P = list(set(add + P_eu).difference(set(R)))
+        P = list(set(add + P_eu).difference(set(R)))
        # cost_0 = ((len(R) + len(P)) / min(N, M + K)) ** TARGET_FUNCTION
         cost_0 = (len(set(R + P_eu + add))) ** TARGET_FUNCTION
         
