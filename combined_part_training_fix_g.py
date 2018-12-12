@@ -341,7 +341,6 @@ def main():
             
         C_old_all = C_all.copy()
         # Determine the per-uer push
-        push_file_all = []
         P = np.array([])
         for i in range(K):
             possible_push = np.array([n for n in range(1, N + 1)])
@@ -394,25 +393,25 @@ def main():
                     C_temp = np.delete(C_temp, list(pos1[0 : j]))
                     C_temp = np.concatenate([C_temp, push_f])
             '''
-            
-            pos = np.argsort(g[possible_push - 1, A_k1])
-            g_sort = np.sort(g[possible_push - 1, A_k1])
-            sum_g = np.sum(g_sort[0])
-            push_file = possible_push[pos[0]]
-            push_E = 0
-            if push_file not in cache:
-                push_E += 1
-            pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
-            g_sort = -np.sort(-g[possible_push - 1, A_k1])
-            delete_g = np.sum(g_sort[0])
-            step_min =  1.0 / K * (len(R_u) + j) ** target_fun + sum_g - delete_g + 1.0 / K * (len(R_e) + push_E) ** target_fun
-            if step_min <= g_min:
-                g_min = step_min
-                push_f = [push_file]
-                C_temp = C_old_all[i, :].copy()
-                C_temp = np.delete(C_temp, pos1[0])
-                C_temp = np.concatenate([C_temp, push_f])
-            P = push_f
+            if len(possible_push)
+                pos = np.argsort(g[possible_push - 1, A_k1])
+                g_sort = np.sort(g[possible_push - 1, A_k1])
+                sum_g = np.sum(g_sort[0])
+                push_file = possible_push[pos[0]]
+                push_E = 0
+                if push_file not in cache:
+                    push_E += 1
+                pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
+                g_sort = -np.sort(-g[possible_push - 1, A_k1])
+                delete_g = np.sum(g_sort[0])
+                step_min =  1.0 / K * (len(R_u) + j) ** target_fun + sum_g - delete_g + 1.0 / K * (len(R_e) + push_E) ** target_fun
+                if step_min <= g_min:
+                    g_min = step_min
+                    push_f = [push_file]
+                    C_temp = C_old_all[i, :].copy()
+                    C_temp = np.delete(C_temp, pos1[0])
+                    C_temp = np.concatenate([C_temp, push_f])
+                P = push_f
             #if len(C_all[i, :]) != len(C_temp):
             #    test = 2;
             C_all[i, :] = C_temp
