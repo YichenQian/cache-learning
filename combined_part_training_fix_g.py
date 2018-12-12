@@ -132,9 +132,9 @@ class Environment(object):
         self.old_cache_state = self.cache_state
         self.cache_state = list(cob[cache_action])
         add = list(set(self.cache_state).difference(set(self.old_cache_state)))
-        P = list(set(add + P_eu).difference(set(R)))
+       # P = list(set(add + P_eu).difference(set(R)))
        # cost_0 = ((len(R) + len(P)) / min(N, M + K)) ** TARGET_FUNCTION
-        cost_0 = (len(R) + len(P)) ** TARGET_FUNCTION
+        cost_0 = (len(set(R + P_eu + add))) ** TARGET_FUNCTION
         
         '''
         # changes of user requests
@@ -494,7 +494,7 @@ def main():
                 print("Times", t, "/ LOSS", LOSS)
                 print("P", P, "R", R, "SYSTEM_STATE", s_t, "NEXT_STATE", s_t1)
             
-            LOSS_FUN.append(LOSS)
+            #LOSS_FUN.append(LOSS)
             
             # save progress every (MAX_ITERATION / 10) iterations
             if t % (MAX_ITERATION / 10) == 0:
