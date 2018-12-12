@@ -341,7 +341,6 @@ def main():
             
         C_old_all = C_all.copy()
         # Determine the per-uer push
-        push_all = np.zeros(K)
         push_file_all = []
         P = np.array([])
         for i in range(K):
@@ -408,16 +407,12 @@ def main():
             delete_g = np.sum(g_sort[0])
             step_min =  1.0 / K * (len(R_u) + j) ** target_fun + sum_g - delete_g + 1.0 / K * (len(R_e) + push_E) ** target_fun
             if step_min <= g_min:
-                push_num = 1
                 g_min = step_min
-                push_f = push_file
+                push_f = [push_file]
                 C_temp = C_old_all[i, :].copy()
                 C_temp = np.delete(C_temp, pos1[0])
-                C_temp = np.concatenate([C_temp, [push_f]])
-
-            push_file_all.append(push_f)
-            push_all[i] = push_num
-            P = np.concatenate([P, [push_f]])
+                C_temp = np.concatenate([C_temp, push_f])
+            P = push_f
             #if len(C_all[i, :]) != len(C_temp):
             #    test = 2;
             C_all[i, :] = C_temp
