@@ -393,7 +393,7 @@ def main():
                     C_temp = np.delete(C_temp, list(pos1[0 : j]))
                     C_temp = np.concatenate([C_temp, push_f])
             '''
-            if len(possible_push)
+            if len(possible_push):
                 pos = np.argsort(g[possible_push - 1, A_k1])
                 g_sort = np.sort(g[possible_push - 1, A_k1])
                 sum_g = np.sum(g_sort[0])
