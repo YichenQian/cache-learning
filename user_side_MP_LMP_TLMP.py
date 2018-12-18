@@ -1,15 +1,16 @@
 from __future__ import print_function
-
-import random
+from numpy import *
 import numpy as np
+import random
 import pickle
+import math
 #import matplotlib.pyplot as plt
 from itertools import combinations
+import argparse
 
 GAMMA = 0.01 # decay rate of past observations
 TARGET_FUNCTION = 2.0
 MAX_ITERATION = 100000
-import argparse
 
 # Network parameters
 #K = 15  # The number of users
@@ -25,7 +26,7 @@ print(N)
 M = 2  # The cache size of users
 L = 3  # The cache size of edge servers
 C = np.zeros(M)  # The cache state of users
-C_E = [n for n in range(1, L + 1)]  # The cache state of edge servers
+C_E = [n for n in range(1, N + 1)]  # The cache state of edge servers
 files = [n for n in range(1, N + 1)]
 cob = list(combinations(files, M))
 CNM = len(cob)
@@ -33,26 +34,17 @@ avarage_cost_all = 0.0
 avarage_cost_all_LRU = 0.0
 avarage_cost_all_LFU = 0.0
 avarage_cost_all_RAND = 0.0
-avarage_cost_all_MP = 0.0
 times = 1
 target_fun = 2.0
 NO_PUSH = 0
-# import g
-str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
-g = pickle.load(open(str1, 'rb'))
-
-
-#TEST
-g = np.zeros([N, N + 1])
-for i in range(N + 1):
-    g[i % N, i] = -0.2
-
+g_out = 0.0
+Q_out = 0.0
 
 # generate the transition probability
 ga = 0.5
 Q0 = 0.2
 nn = 1.0
-f =np.array([[0 for col in range(N + 1)] for row in range(N + 1)], dtype = float)
+f = np.array([[0 for col in range(N + 1)] for row in range(N + 1)], dtype = float)
 f_sum = np.array([[0 for col in range(N + 1)] for row in range(N + 1)], dtype = float)
 sum_pro = 0
 for i in range(1, N + 1):
@@ -70,6 +62,7 @@ for i in range(0, N + 1):
 for i in range(0, N + 1):
     for j in range(0, N + 1):
         f_sum[i, j] = f[i, 0 : j + 1].sum()
+sigmap = sum(f[0,:] ** 2)
 
 def cache_diff(old_cache_state, new_cache_state):
     add = list(set(new_cache_state).difference(set(old_cache_state)))
@@ -79,12 +72,7 @@ def cache_diff(old_cache_state, new_cache_state):
 
 for time in range(0, times):
     P_time = 0
-    q_new = np.zeros(K)  # req of user k is in q_new[k-1]
-    for i in range(K):
-        q_new[i] = random.randint(0, N)
-    q_new = q_new.astype(int)
-    Q_new = np.zeros([2, 2, N, N + 1])
-    Q_old = Q_new.copy()
+    
     C_all = np.zeros([K, M])  # user k file m is in C_all[k-1,m-1]
     C_all = C_all.astype(int)
     phi = np.zeros([1, 1, N, 1])
@@ -93,43 +81,34 @@ for time in range(0, times):
         C = C.astype(int)
         C = np.sort(C[0 : M])
         C_all[i, :] = C.copy()
-    C_old_all = C_all.copy()
-    C_all_LRU = C_all.copy()
-    C_all_LFU = C_all.copy()
-    C_all_RAND = C_all.copy()
     C_all_MP = C_all.copy()
-    C_old_all_LRU = C_all.copy()
-    C_old_all_LFU = C_all.copy()
-    C_old_all_RAND = C_all.copy()
-    
-    count = np.zeros(N)
+    C_all_LMP = C_all.copy()
+    C_all_TLMP = C_all.copy()
+#    C_old_all_MP = C_all.copy()
+#    C_old_all_LMP = C_all.copy()
+#    C_old_all_TLMP = C_all.copy()
     
     t = 0  # Time
-    total_cost = 0.0  # Total bandwidth cost
-    total_cost_LRU = 0.0
-    total_cost_LFU = 0.0
-    total_cost_RAND = 0.0
+    h = 50 #initial history length
     total_cost_MP = 0.0
+    total_cost_LMP = 0.0
+    total_cost_TLMP = 0.0
     avarage_cost = []
-    avarage_cost_LRU = []
-    avarage_cost_LFU = []
-    avarage_cost_RAND = []
     avarage_cost_MP = []
-    frequency = np.zeros([K, M])
-    
+    avarage_cost_LMP = []
+    avarage_cost_TLMP = []
+    histroy = [[]for row in range(K)]
+    history_temp = [[]for row in range(K)]
+    counter = np.zeros([K, h + 1])
+    counter_temp = np.zeros([K, h + 1])    
     # Count the number of requests
     req_times = np.zeros(N + 1)  # req_time of file n is in req_time[n], 0 represents no request
     
     # Record the initial state
-    A_k0 = random.randint(1, N)
-    S_kf0 = 1
-    dS_kf0 = 1
     push_file_all = []
     
     # Begin the iteration
     while t <= MAX_ITERATION:
-        Q_old = Q_new.copy()
-        q_old = q_new.copy()
         # Update the user request
         r = np.random.randn(K)
         for i in range(K):
@@ -138,13 +117,59 @@ for time in range(0, times):
             while tran_p > f_sum[q_new[i], j]:
                 j += 1
             q_new[i] = j
-        req_times[q_new[i]] += 1 # modified
+            req_times[q_new[i]] += 1
+            history[i].append(q_new[i])        
+
+        if t < h - 1:
+            for i in range(K):
+                C = np.random.permutation(N) + 1
+                C = C.astype(int)
+                C = np.sort(C[0 : M])
+                C_all_LMP[i, :] = C.copy()
+
+        elif t == h - 1:
+            for i in range(K):
+                for j in range(1, h + 1):
+                    for k in range(h - 1, j - 1, -1):
+                        if history[i][k] == history[i][k - j]:
+                            counter[i, j] += 1
+            average_counter = np.sum(counter, 1) / h
+            history_temp = history
+            for i in range(K):
+                random.shuffle(history_temp[i])
+            for i in range(K):
+                for j in range(1, h + 1):
+                    for k in range(h - 1, j - 1, -1):
+                        if history_temp[i][k] == history_temp[i][k - j]:
+                            counter_temp[i, j] += 1
+            h_count = np.zeros(K)
+            for i in range(K):
+                for j in range(1, h + 1):
+                    if counter_temp[i, j] > average_counter[i, j]:
+                        h_count[i] += 1
+            h = np.sum(h_count) / K
+            
+        else:
+            if len(history[0]) > h:
+                for i in range(K):
+                    history[i] = history[i][-h:]
+            
+            # generate matrix A
+            A = np.zeros([K, h, h])
+            for i in range(K):
+                for j in range(h):
+                    for k in range(j, h):
+                        if j == k:
+                            A[i, j, j] = 1 - sigmap
+                        else:
+                            A[i, j, k] = counter[i, k - j] 
+                            A[i, k, j] = 
 
         # Update the reacitve transmission
         R = np.zeros(K)
         R = R.astype(int)
         for i in range(K):
-            if q_new[i] != 0 and q_new[i] not in C_all[i, :]:
+            if q_new[i] != 0 and (q_new[i] not in C_all[i, :]):
                 R[i] = q_new[i].copy()
         R_k = R.copy()
         R = np.unique(R)
@@ -184,78 +209,13 @@ for time in range(0, times):
         R_RAND = np.unique(R_RAND)
         if R_RAND[0] == 0:
             R_RAND = np.delete(R_RAND, 0)
-            
-        # Update the reactive transmission for MP
-        R_MP = np.zeros(K)
-        R_MP = R_MP.astype(int)
-        for i in range(K):
-            if q_new[i] != 0 and q_new[i] not in C_all_MP[i, :]:
-                R_MP[i] = q_new[i].copy()
-        R_k_MP = R_MP.copy()
-        R_MP = np.unique(R_MP)
-        if R_MP[0] == 0:
-            R_MP = np.delete(R_MP, 0)
-            
+        
         C_old_all = C_all.copy()
         C_old_all_LRU = C_all_LRU.copy()
         C_old_all_LFU = C_all_LFU.copy()
         C_old_all_RAND = C_all_RAND.copy()
-        # Determine the per-uer push
-        push_all = np.zeros(K)
-        push_file_all = []
-        P = np.array([])
-        for i in range(K):
-            possible_push = np.array([n for n in range(1, N + 1)])
-            delete_index = C_old_all[i, :].copy()
-            if len(R) != 0:
-                delete_index = np.append(delete_index, R)
-            possible_push = np.delete(possible_push, (delete_index - 1).tolist())
-            g_min = 1.0 / K * (len(R) ** target_fun + len(R_e) ** target_fun)
-            #g_min = 1 / K * ((R_k[i] != 0) ** target_fun + (R_k[i] not in C_E) ** target_fun)
-            push_num = 0
-            A_k1 = q_new[i].copy()
-            C_temp = C_old_all[i, :].copy()
-            push_f = []
-            # check the files in R if it can be better cache
-            no_push = C_old_all[i, :].copy()
-            no_push = np.append(no_push, R)
-            no_push = np.unique(no_push)
-            pos = np.argsort(g[no_push - 1, A_k1])
-            g_sort = np.sort(g[no_push - 1, A_k1])
-            sum_g = np.sum(g_sort[0 : M])
-            pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
-            g_sort1 = -np.sort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
-            delete_g = np.sum(g_sort1[0 : M])
-            if delete_g > sum_g:
-                g_min = g_min - delete_g + sum_g
-                C_temp = np.delete(C_temp, list(pos1[0 : M]))
-                C_temp = np.concatenate([C_temp, no_push[pos[0 : M]]])
-            
-            
-            for j in range(1, min(len(possible_push - 1), M) + 1):
-                pos = np.argsort(g[possible_push - 1, A_k1])
-                g_sort = np.sort(g[possible_push - 1, A_k1])
-                sum_g = np.sum(g_sort[0 : j])
-                push_file = possible_push[list(pos[0 : j])].copy()
-                push_E = 0
-                for k in range(j):
-                    if push_file[k] not in C_E:
-                        push_E += 1
-                pos1 = np.argsort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
-                g_sort1 = -np.sort(-g[C_old_all[i,:].astype(int) - 1, A_k1])
-                delete_g = np.sum(g_sort1[0 : j])
-                #step_min = 1 / K * (((R_k[i]!=0) + j) ** target_fun + sum_g - delete_g + ((R_k[i] not in C_E) + push_E) ** target_fun)
-                step_min =  1.0 / K * (len(R) + j) ** target_fun + sum_g - delete_g + 1.0 / K * (len(R_e) + push_E) ** target_fun
-                if step_min <= g_min:
-                    push_num = j
-                    g_min = step_min
-                    push_f = push_file.copy()
-                    C_temp = C_old_all[i, :].copy()
-                    C_temp = np.delete(C_temp, list(pos1[0 : j]))
-                    C_temp = np.concatenate([C_temp, push_f])
-            push_file_all.append(push_f)
-            push_all[i] = push_num
-            P = np.concatenate([P, push_f])
+ 
+    
             #if len(C_all[i, :]) != len(C_temp):
             #    test = 2
             C_all[i, :] = C_temp
@@ -279,16 +239,6 @@ for time in range(0, times):
             C = C.astype(int)
             C = np.sort(C[0 : M])
             C_all_RAND[i, :] = C.copy()
-            
-            # MP
-            req_sort = np.argsort(-req_times)
-            if req_sort[0] == 0:
-                C_all_MP[i, :] = req_sort[1 : 3]
-            elif req_sort[1] == 0:
-                C_all_MP[i, 0] = req_sort[0]
-                C_all_MP[i, 1] = req_sort[2]
-            else:
-                C_all_MP[i, :] = req_sort[0 : 2]    
             
         P = np.array(list(set(np.unique(P)).difference(set(R))))
         if len(P) != 0:
@@ -321,12 +271,6 @@ for time in range(0, times):
         for i in range(len(R_RAND)):
             if R_RAND[i] not in C_E:
                 R_E_RAND.append(R_RAND[i])
-                
-        # Compute the edge transmission and the edge push MP
-        R_E_MP = []
-        for i in range(len(R_MP)):
-            if R_MP[i] not in C_E:
-                R_E_MP.append(R_MP[i])
         
         # Compute the avarage cost
         t = t + 1
@@ -337,25 +281,29 @@ for time in range(0, times):
         total_cost_LRU = total_cost_LRU + len(R_LRU) ** target_fun + len(R_E_LRU) ** target_fun
         total_cost_LFU = total_cost_LFU + len(R_LFU) ** target_fun + len(R_E_LFU) ** target_fun
         total_cost_RAND = total_cost_RAND + len(R_RAND) ** target_fun + len(R_E_RAND) ** target_fun
-        total_cost_MP = total_cost_MP + len(R_MP) ** target_fun + len(R_E_MP) ** target_fun
         avarage_cost.append(total_cost / t)
         avarage_cost_LRU.append(total_cost_LRU / t)
         avarage_cost_LFU.append(total_cost_LFU / t)
-        avarage_cost_RAND.append(total_cost_RAND / t)
-        avarage_cost_MP.append(total_cost_MP / t)
+        avarage_cost_RAND.append(total_cost_RAND / t)    
+    g_out = g
+    Q_out = Q_new
     avarage_cost_all = avarage_cost_all + avarage_cost[-1]
     avarage_cost_all_LRU = avarage_cost_all_LRU + avarage_cost_LRU[-1]
     avarage_cost_all_LFU = avarage_cost_all_LFU + avarage_cost_LFU[-1]
     avarage_cost_all_RAND = avarage_cost_all_RAND + avarage_cost_RAND[-1]
-    avarage_cost_all_MP = avarage_cost_all_MP + avarage_cost_MP[-1]
 avarage_cost_all = avarage_cost_all / times
 avarage_cost_all_LRU = avarage_cost_all_LRU / times
 avarage_cost_all_LFU = avarage_cost_all_LFU / times
 avarage_cost_all_RAND = avarage_cost_all_RAND / times
-avarage_cost_all_MP = avarage_cost_all_MP / times
 print("ours = {}".format(avarage_cost_all))
 print("LRU = {}".format(avarage_cost_all_LRU))
 print("LFU = {}".format(avarage_cost_all_LFU))
 print("RAND = {}".format(avarage_cost_all_RAND))
-print("MP = {}".format(avarage_cost_all_MP))
 print(P_time)
+
+# save g to g.txt
+str1 = "training_data/g_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
+str2 = "training_data/Q_{KK}_{NN}_{MM}_{LL}.txt".format(KK=K, NN=N, MM=M, LL=L)
+pickle.dump(g_out,open(str1, 'wb'))
+pickle.dump(Q_out,open(str2, 'wb'))
+print ("write over")
