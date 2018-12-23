@@ -408,6 +408,7 @@ for time in range(0, times):
                     C_all_LMP[i, :] = no_push[pos[0 : M]]
             
             # TLMP
+            P_TLMP = []
             if t < h - 1:
                 for i in range(K):
                     C = np.random.permutation(N) + 1
@@ -418,7 +419,10 @@ for time in range(0, times):
                 if len(R_TLMP) < math.sqrt(avarage_cost_all_LMP / 2):
                     pos1 = np.argmax(possibility, 1)
                     P_file = Counter(pos1).most_common(1)[0][0]
-                    all_files = np.append(no_push, P_file)
+                    if P_file != 0:
+                        all_files = np.append(no_push, P_file)
+                        P_TLMP.append(P_file)
+                        
                 else:
                     all_files = no_push
                 for i in range(K):
@@ -479,6 +483,11 @@ for time in range(0, times):
         for i in range(len(R_TLMP)):
             if R_TLMP[i] not in C_E:
                 R_E_TLMP.append(R_TLMP[i])
+            
+        P_E_TLMP = []
+        for i in range(len(P_TLMP)):
+            if P_TLMP[i] not in C_E:
+                P_E_TLMP.append(P[i])
         
         # Compute the avarage cost
         t = t + 1
@@ -491,7 +500,7 @@ for time in range(0, times):
         total_cost_RAND = total_cost_RAND + len(R_RAND) ** target_fun + len(R_E_RAND) ** target_fun
         total_cost_MP = total_cost_MP + len(R_MP) ** target_fun + len(R_E_MP) ** target_fun
         total_cost_LMP = total_cost_LMP + len(R_LMP) ** target_fun + len(R_E_LMP) ** target_fun
-        total_cost_TLMP = total_cost_TLMP + len(R_TLMP) ** target_fun + len(R_E_TLMP) ** target_fun
+        total_cost_TLMP = total_cost_TLMP + (len(R_TLMP) + len(P_TLMP)) ** target_fun + (len(R_E_TLMP) + len(P_E_TLMP)) ** target_fun
         avarage_cost.append(total_cost / t)
         avarage_cost_LRU.append(total_cost_LRU / t)
         avarage_cost_LFU.append(total_cost_LFU / t)
