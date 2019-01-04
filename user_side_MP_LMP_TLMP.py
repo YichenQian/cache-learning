@@ -22,8 +22,8 @@ parser.add_argument('--N', type=int, default = 0)
 args = parser.parse_args()
 K = args.K
 N = args.N
-K = 5
-N = 10
+#K = 5
+#N = 10
 print(K)
 print(N)
 M = 2  # The cache size of users
