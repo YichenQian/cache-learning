@@ -389,13 +389,10 @@ for time in range(0, times):
             
             # MP
             req_sort = np.argsort(-req_times)
-            if req_sort[0] == 0:
-                C_all_MP[i, :] = req_sort[1 : 3]
-            elif req_sort[1] == 0:
-                C_all_MP[i, 0] = req_sort[0]
-                C_all_MP[i, 1] = req_sort[2]
-            else:
-                C_all_MP[i, :] = req_sort[0 : 2]
+            for j in range(M + 1):
+                if req_sort[j] == 0:
+                    np.delete(req_sort, j)
+            C_all_MP[i, 0 : M] = req_sort[0 : M]
             
             # LMP
             if t < h - 1:
