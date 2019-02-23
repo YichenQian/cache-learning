@@ -17,17 +17,23 @@ MAX_ITERATION = 100000
 #K = 15  # The number of users
 #N = 10  # The number of total files
 parser = argparse.ArgumentParser(description='manual to this script')
-parser.add_argument('--K', type=int, default = 0)
-parser.add_argument('--N', type=int, default = 0)
+parser.add_argument('--K', type=int, default = 10)
+parser.add_argument('--N', type=int, default = 20)
+parser.add_argument('--M', type=int, default = 2)
+parser.add_argument('--L', type=int, default = 3)
 args = parser.parse_args()
 K = args.K
 N = args.N
+M = args.M
+L = args.L
 #K = 5
 #N = 10
 print(K)
 print(N)
-M = 2  # The cache size of users
-L = 3  # The cache size of edge servers
+print(M)
+print(L)
+#M = 2  # The cache size of users
+#L = 3  # The cache size of edge servers
 C = np.zeros(M)  # The cache state of users
 C_E = [n for n in range(1, L + 1)]  # The cache state of edge servers
 files = [n for n in range(1, N + 1)]
@@ -57,7 +63,7 @@ for i in range(N + 1):
 # generate the transition probability
 ga = 0.5
 Q0 = 0.2
-nn = 1.0
+nn = 2.0
 f =np.array([[0 for col in range(N + 1)] for row in range(N + 1)], dtype = float)
 f_sum = np.array([[0 for col in range(N + 1)] for row in range(N + 1)], dtype = float)
 sum_pro = 0
@@ -70,8 +76,8 @@ for i in range(0, N + 1):
             continue
         if i == 0:
             f[i, j] = (1 - Q0) * (1 / j ** ga / sum_pro)
-        #elif j == i % N + 1 or j == (i + 1) % N + 1:
-        elif j == i % N + 1:
+        elif j == i % N + 1 or j == (i + 1) % N + 1:
+        #elif j == i % N + 1:
             f[i, j] = (1 - Q0) / nn
 for i in range(0, N + 1):
     for j in range(0, N + 1):
