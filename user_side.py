@@ -10,7 +10,7 @@ import argparse
 
 GAMMA = 0.01 # decay rate of past observations
 TARGET_FUNCTION = 2.0
-MAX_ITERATION = 1000000
+MAX_ITERATION = 10000000
 
 # Network parameters
 #K = 15  # The number of users
