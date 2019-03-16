@@ -7,9 +7,9 @@ import math
 import tensorflow as tf
 import random
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import argparse
-from collections import deque
+#from collections import deque
 from itertools import combinations
 from tensorflow.python.framework import ops
 ops.reset_default_graph()

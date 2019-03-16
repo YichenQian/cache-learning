@@ -5,7 +5,7 @@ from scipy.special import comb
 import tensorflow as tf
 import random
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import argparse
 from collections import deque
 from itertools import combinations
@@ -385,8 +385,8 @@ def main():
     P_u = 1
     R_u = 1
     loss = playGame(P_u, R_u)
-    x = range(0, len(loss))
-    plt.plot(x, loss)
+#    x = range(0, len(loss))
+#    plt.plot(x, loss)
 
 if __name__ == "__main__":
     main()
