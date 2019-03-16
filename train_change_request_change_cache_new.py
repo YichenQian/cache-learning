@@ -6,6 +6,7 @@ import tensorflow as tf
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
 from collections import deque
 from itertools import combinations
 from tensorflow.python.framework import ops
@@ -30,10 +31,24 @@ EXPLORE = EXPLORE / QUICK
 
 
 # Network parameters
-K = 5  # user number
-N = 10  # file number
-M = 3  # cache size of edge server
-L = 2  # cache size of user
+parser = argparse.ArgumentParser(description='manual to this script')
+parser.add_argument('--K', type=int, default = 10)
+parser.add_argument('--N', type=int, default = 20)
+parser.add_argument('--M', type=int, default = 3)
+parser.add_argument('--L', type=int, default = 2)
+args = parser.parse_args()
+print(args.K)
+print(args.N)
+print(args.M)
+print(args.L)
+K = args.K
+N = args.N
+M = args.M
+L = args.L
+#K = 5  # user number
+#N = 20  # file number
+#M = 3  # cache size of edge server
+#L = 2  # cache size of user
 ACTIONS = int(comb(N, M)) # number of valid actions
 #ACTIONS = N
 files = [n for n in range(1, N + 1)]
@@ -331,6 +346,10 @@ def trainNetwork(s, readout, sess, P_u, R_u):
         if t % 10000 == 0:
             saver.save(sess, 'saved_networks/' + 'cache' + '-dqn', global_step = t)
 
+        if t % (MAX_ITERATION / 10) == 0:
+            str1 = "saved_networks_{KK}_{NN}_{MM}_{LL}_edge_server/cached-dqn-".format(KK=K, NN=N, MM=M, LL=L)
+            saver.save(sess, str1 , global_step = t)
+            
         # print info
 #        state = ""
 #        if t <= OBSERVE:
