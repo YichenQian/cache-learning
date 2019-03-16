@@ -294,7 +294,7 @@ def trainNetwork(s, readout, sess, P_u, R_u):
         for i in range(0, K):
             new_request_num[request[i]] += 1
         old_cache = cache.copy()
-        cache = cob[action_index]
+        cache = list(cob[action_index])
         # count the different cache nums
         #cache_diff = len(set(cache).difference(set(old_cache)))
         
